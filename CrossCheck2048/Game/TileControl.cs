@@ -15,6 +15,7 @@ namespace CrossCheck2048.Game
     }
     public class TileControl : ITileControl
     {
+        private Random _random = new Random();
         private readonly Canvas _canvas;
         public List<Tile> Tiles { get; }
 
@@ -34,6 +35,24 @@ namespace CrossCheck2048.Game
             return Tiles.FirstOrDefault(s => s.Position.X == x && s.Position.Y == y);
         }
 
+        public TileVector GetRandomTile()
+        {
+            var tiles = GetFreeTiles().ToArray();
+            return tiles.ElementAt(_random.Next(0, tiles.Count()));
+        }
+
+        public IEnumerable<TileVector> GetFreeTiles()
+        {
+            for (int x = 0; x <= 3; x++)
+            {
+                for (int y = 0; y <= 3; y++)
+                {
+                    if (!HasTile(x, y))
+                        yield return new TileVector(x, y);
+                }
+            }
+        }
+
         public Tile GetClosestTileFromDirection(Tile tile, DirectionEnum direction)
         {
             if (direction == DirectionEnum.Left || direction == DirectionEnum.Right)
@@ -42,85 +61,139 @@ namespace CrossCheck2048.Game
                 return GetTilesFromDirection(direction).SkipWhile(s => s != tile).FirstOrDefault(s => s != tile && s.Position.X == tile.Position.X);
         }
 
-        public void MoveFarthestAvailableColumn(Tile tile, DirectionEnum direction)
+        public bool MoveFarthestAvailableColumn(Tile tile, DirectionEnum direction, bool canMerge = true)
         {
             Tile closestTileOnDirection = GetClosestTileFromDirection(tile, direction);
-
+            bool hasMoved = false;
             if (closestTileOnDirection != null)
             {
-                if (closestTileOnDirection.Points == tile.Points)
+                if (closestTileOnDirection.Points == tile.Points && canMerge)
                 {
                     tile.MergeWith(closestTileOnDirection);
                     tile.MoveTo(closestTileOnDirection.Position);
                     Tiles.Remove(closestTileOnDirection);
                     _canvas.Children.Remove(closestTileOnDirection);
+                    hasMoved = true;
                 }
                 else
                 {
                     if (direction == DirectionEnum.Left)
-                        tile.Position.X = closestTileOnDirection.Position.X - 1;
-                    else if (direction == DirectionEnum.Right)
-                        tile.Position.X = closestTileOnDirection.Position.X + 1;
-                    else if (direction == DirectionEnum.Down)
-                        tile.Position.Y = closestTileOnDirection.Position.Y + 1;
-                    else if (direction == DirectionEnum.Up)
-                        tile.Position.Y = closestTileOnDirection.Position.Y - 1;
+                    {
+                        if (closestTileOnDirection.Position.X + 1 != tile.Position.X)
+                        {
+                            tile.Position.X = closestTileOnDirection.Position.X + 1;
+                            tile.MoveTo(tile.Position);
 
-                    tile.MoveTo(tile.Position);
+                            hasMoved = true;
+                        }
+                    }
+                    else if (direction == DirectionEnum.Right)
+                    {
+                        if (closestTileOnDirection.Position.X - 1 != tile.Position.X)
+                        {
+                            tile.Position.X = closestTileOnDirection.Position.X - 1;
+                            tile.MoveTo(tile.Position);
+
+                            hasMoved = true;
+                        }
+                    }
+                    else if (direction == DirectionEnum.Down)
+                    {
+                        if (closestTileOnDirection.Position.Y - 1 != tile.Position.Y)
+                        {
+                            tile.Position.Y = closestTileOnDirection.Position.Y - 1;
+                            tile.MoveTo(tile.Position);
+
+                            hasMoved = true;
+                        }
+                    }
+                    else if (direction == DirectionEnum.Up)
+                    {
+                        if (closestTileOnDirection.Position.Y + 1 != tile.Position.Y)
+                        {
+                            tile.Position.Y = closestTileOnDirection.Position.Y + 1;
+                            tile.MoveTo(tile.Position);
+                            hasMoved = true;
+                        }
+                    }
                 }
             }
             else
             {
-                if (direction == DirectionEnum.Left)
+                if (direction == DirectionEnum.Left && tile.Position.X != 0)
+                {
                     tile.Position.X = 0;
-                else if (direction == DirectionEnum.Right)
+                    hasMoved = true;
+                    tile.MoveTo(tile.Position);
+                }
+                else if (direction == DirectionEnum.Right && tile.Position.X != 3)
+                {
                     tile.Position.X = 3;
-                else if (direction == DirectionEnum.Up)
+                    hasMoved = true;
+                    tile.MoveTo(tile.Position);
+                }
+                else if (direction == DirectionEnum.Up && tile.Position.Y != 0)
+                {
                     tile.Position.Y = 0;
-                else if (direction == DirectionEnum.Down)
+                    hasMoved = true;
+                    tile.MoveTo(tile.Position);
+                }
+                else if (direction == DirectionEnum.Down && tile.Position.Y != 3)
+                {
                     tile.Position.Y = 3;
-
-                tile.MoveTo(tile.Position);
+                    hasMoved = true;
+                    tile.MoveTo(tile.Position);
+                }
             }
 
-            _canvas.UpdateLayout();
+            if (hasMoved)
+                _canvas.UpdateLayout();
+
+            return hasMoved;
         }
 
         public void MoveTiles(DirectionEnum direction)
         {
-            foreach (var tile in GetTilesFromDirection(direction))
+            bool canMove = true;
+            bool canMerge = true;
+            do
             {
-                MoveFarthestAvailableColumn(tile, direction);
-            }
-        }
+                bool madeAnyMovementsOrMerges = false;
+                foreach (var tile in GetTilesFromDirection(direction))
+                {
+                    bool hasMoved = MoveFarthestAvailableColumn(tile, direction, canMerge);
+                    if (hasMoved)
+                        madeAnyMovementsOrMerges = true;
+                }
 
-        private int temp = 0;
+
+                if (!madeAnyMovementsOrMerges)
+                    canMove = false;
+                canMerge = false;
+            } while (canMove);
+        }
+        
         public void CreateTile()
         {
-            Tile tile = new Tile(new TileVector(temp, temp));
+            Tile tile = new Tile(GetRandomTile());
             _canvas.Children.Add(tile);
             Tiles.Add(tile);
         }
 
         private IEnumerable<Tile> GetTilesFromDirection(DirectionEnum direction)
         {
-            if (direction == DirectionEnum.Left || direction == DirectionEnum.Up)
+            switch (direction)
             {
-                for (int x = 0; x <= 3; x++)
-                {
-                    for (int y = 0; y <= 3; y++)
-                        if (HasTile(x, y))
-                            yield return GetTile(x, y);
-                }
-            }
-            else
-            {
-                for (int x = 3; x >= 0; x--)
-                {
-                    for (int y = 3; y >= 0; y--)
-                        if (HasTile(x, y))
-                            yield return GetTile(x, y);
-                }
+                case DirectionEnum.Left:
+                    return Tiles.OrderByDescending(s => s.Position.X);
+                case DirectionEnum.Right:
+                    return Tiles.OrderBy(s => s.Position.X);
+                case DirectionEnum.Up:
+                    return Tiles.OrderByDescending(s => s.Position.Y);
+                case DirectionEnum.Down:
+                    return Tiles.OrderBy(s => s.Position.Y);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
             }
         }
 

@@ -41,6 +41,9 @@ namespace CrossCheck2048.Game
                 case VirtualKey.Down:
                     direction = DirectionEnum.Down;
                     break;
+                case VirtualKey.A:
+                    _gameBoard.CreateRandomTile();
+                    return;
                 default:
                     return;
             }

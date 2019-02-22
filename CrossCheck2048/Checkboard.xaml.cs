@@ -34,12 +34,7 @@ namespace CrossCheck2048
             CheckboardCanvas.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 187, 173, 160));
             _tiles = TileControl.CreateTileControl(CheckboardCanvas);
         }
-
-        public void CreateRandomTile()
-        {
-            _tiles.CreateTile();
-        }
-
+        
         public void RemoveTiles(IEnumerable<Tile> tiles)
         {
             foreach (Tile tile in tiles)
@@ -49,6 +44,7 @@ namespace CrossCheck2048
         public void MoveDirection(DirectionEnum direction)
         {
             _tiles.MoveTiles(direction);
+            CreateRandomTile();
         }
 
         //public void RemoveTile(Tile tile)
@@ -56,5 +52,9 @@ namespace CrossCheck2048
         //    _tiles.Remove(tile);
         //    CheckboardCanvas.Children.Remove(tile);
         //}
+        public void CreateRandomTile()
+        {
+            _tiles.CreateTile();
+        }
     }
 }
