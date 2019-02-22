@@ -10,12 +10,12 @@ namespace CrossCheck2048.Game
     public interface ITileControl
     {
         bool HasTile(int x, int y);
-        void MoveTiles(DirectionEnum direction);
+        bool MoveTiles(DirectionEnum direction);
         void CreateTile();
     }
     public class TileControl : ITileControl
     {
-        private Random _random = new Random();
+        private readonly Random _random = new Random();
         private readonly Canvas _canvas;
         public List<Tile> Tiles { get; }
 
@@ -152,10 +152,11 @@ namespace CrossCheck2048.Game
             return hasMoved;
         }
 
-        public void MoveTiles(DirectionEnum direction)
+        public bool MoveTiles(DirectionEnum direction)
         {
             bool canMove = true;
             bool canMerge = true;
+            bool anyMovementsMade = false;
             do
             {
                 bool madeAnyMovementsOrMerges = false;
@@ -163,14 +164,18 @@ namespace CrossCheck2048.Game
                 {
                     bool hasMoved = MoveFarthestAvailableColumn(tile, direction, canMerge);
                     if (hasMoved)
+                    {
+                        anyMovementsMade = true;
                         madeAnyMovementsOrMerges = true;
+                    }
                 }
-
 
                 if (!madeAnyMovementsOrMerges)
                     canMove = false;
                 canMerge = false;
             } while (canMove);
+
+            return anyMovementsMade;
         }
         
         public void CreateTile()

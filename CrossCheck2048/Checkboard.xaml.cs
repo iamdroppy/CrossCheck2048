@@ -43,15 +43,12 @@ namespace CrossCheck2048
 
         public void MoveDirection(DirectionEnum direction)
         {
-            _tiles.MoveTiles(direction);
-            CreateRandomTile();
-        }
+            bool anyTilesMoved = _tiles.MoveTiles(direction);
 
-        //public void RemoveTile(Tile tile)
-        //{
-        //    _tiles.Remove(tile);
-        //    CheckboardCanvas.Children.Remove(tile);
-        //}
+            if (anyTilesMoved)
+                CreateRandomTile();
+        }
+        
         public void CreateRandomTile()
         {
             _tiles.CreateTile();
