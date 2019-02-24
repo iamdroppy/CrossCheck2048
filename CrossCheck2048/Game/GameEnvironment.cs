@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Core;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
+using CrossCheck2048.Game.Tiles;
 
 namespace CrossCheck2048.Game
 {
@@ -20,36 +22,28 @@ namespace CrossCheck2048.Game
         private GameEnvironment(Checkboard gameBoard)
         {
             _gameBoard = gameBoard;
-            CoreWindow.GetForCurrentThread().KeyDown += OnKeyDown;
         }
 
         private void OnKeyDown(CoreWindow sender, KeyEventArgs args)
         {
-            DirectionEnum direction = DirectionEnum.Down;
-
             switch (args.VirtualKey)
             {
                 case VirtualKey.Right:
-                    direction = DirectionEnum.Right;
+                    _gameBoard.MoveDirection(DirectionEnum.Right);
                     break;
                 case VirtualKey.Left:
-                    direction = DirectionEnum.Left;
+                    _gameBoard.MoveDirection(DirectionEnum.Left);
                     break;
                 case VirtualKey.Up:
-                    direction = DirectionEnum.Up;
+                    _gameBoard.MoveDirection(DirectionEnum.Up);
                     break;
                 case VirtualKey.Down:
-                    direction = DirectionEnum.Down;
+                    _gameBoard.MoveDirection(DirectionEnum.Down);
                     break;
-                case VirtualKey.A:
-                    _gameBoard.CreateRandomTile();
-                    return;
-                default:
-                    return;
+                case VirtualKey.R:
+                    _gameBoard.Reset();
+                    break;
             }
-
-
-            _gameBoard.MoveDirection(direction);
         }
 
         public static IGame CreateGame(Checkboard gameBoard)
@@ -57,20 +51,14 @@ namespace CrossCheck2048.Game
             return new GameEnvironment(gameBoard);
         }
 
-        public async Task StartGame()
+        public void StartGame()
         {
-            await RenderCheckboard();
-        }
-        
-        public Task StopGame()
-        {
-            return Task.CompletedTask;
+            CoreWindow.GetForCurrentThread().KeyDown += OnKeyDown;
         }
 
-        private async Task RenderCheckboard()
+        public void StopGame()
         {
-            _gameBoard.CreateRandomTile();
-            _gameBoard.CreateRandomTile();
+            CoreWindow.GetForCurrentThread().KeyDown -= OnKeyDown;
         }
     }
 }

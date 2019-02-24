@@ -6,8 +6,24 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Width="400"
-    Height="400">
-    <Canvas Name="CheckboardCanvas">
-    </Canvas>
+    Width="500"
+    Height="500">
+    <StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+            <TextBlock FontFamily="Segoe UI Light" FontSize="28px">Score:</TextBlock>
+            <TextBlock FontFamily="Segoe UI Light" FontSize="28px" Margin="10,0,0,0" Name="Score">0</TextBlock>
+            <Button HorizontalAlignment="Center" Click="OnResetButtonClick" HorizontalContentAlignment="Right">Restart Game</Button>
+        </StackPanel>
+        <Border HorizontalAlignment="Left" BorderBrush="Black" Width="402" Height="402" BorderThickness="1">
+            <Canvas HorizontalAlignment="Left" VerticalAlignment="Top" Width="400" Height="400">
+                <Canvas HorizontalAlignment="Left" VerticalAlignment="Top" Name="CheckboardCanvas" Width="400" Height="400" >
+                </Canvas>
+                <StackPanel HorizontalAlignment="Center" Visibility="Collapsed" Name="OverlayPanel" Opacity="0.7" VerticalAlignment="Center" Background="AntiqueWhite" Width="400" Height="400">
+                    <TextBlock HorizontalAlignment="Center" FontFamily="Segoe UI Light" FontSize="48px">Game-Over!</TextBlock>
+                    <TextBlock HorizontalAlignment="Center" FontFamily="Segoe UI Light" FontSize="28px">No more possible moves!</TextBlock>
+                    <Button HorizontalAlignment="Center" Click="OnResetButtonClick">Restart Game</Button>
+                </StackPanel>
+            </Canvas>
+        </Border>
+    </StackPanel>
 </UserControl>

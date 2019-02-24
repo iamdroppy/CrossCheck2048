@@ -8,7 +8,7 @@
     mc:Ignorable="d"
     Width="100"
     Height="100">
-    <Grid Background="LightCyan" BorderBrush="DarkGray" BorderThickness="1" CornerRadius="5" Padding="12">
+    <Grid Name="TileGrid"  Background="LightCyan" BorderBrush="DarkGray" BorderThickness="1" CornerRadius="5" Padding="12">
         <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="28" Foreground="Black" Name="points"></TextBlock>
     </Grid>
 </UserControl>

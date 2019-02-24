@@ -33,9 +33,9 @@ namespace CrossCheck2048
             Loaded += OnLoaded;
         }
 
-        private async void OnLoaded(object sender, RoutedEventArgs e)
+        private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            await _game.StartGame();
+            _game.StartGame();
         }
     }
 }

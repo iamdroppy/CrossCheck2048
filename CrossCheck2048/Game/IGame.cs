@@ -8,7 +8,7 @@ namespace CrossCheck2048.Game
 {
     public interface IGame
     {
-        Task StartGame();
-        Task StopGame();
+        void StartGame();
+        void StopGame();
     }
 }
